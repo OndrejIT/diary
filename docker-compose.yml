@@ -1,0 +1,64 @@
+version: "2"
+
+services:
+  uwsgi:
+    image: registry.ntl.cloud/ondrej/diary:latest
+    build: .
+    command: ./etc/uwsgi.dev.ini
+    environment:
+      CONFIGFILE: /opt/diary/etc/diary.dev.conf
+    volumes:
+      - .:/opt/diary/
+    ports:
+      - 80:8080
+      - 443:8443
+    depends_on:
+      - postgres
+
+#  nginx:
+#    image: docker.io/nginx:alpine
+#    command: "nginx -g 'daemon off;'"
+#    volumes:
+#      - ../nginx/kalendar_kontakty.conf:/etc/nginx/conf.d/kalendar_kontakty.conf
+#      - ./resources/static/:/srv/kalendar_kontakty/resources/static/
+#    environment:
+#      - NGINX_PORT=80
+#    depends_on:
+#     - djradicale
+#    ports:
+#      - 8111:80
+
+  pgweb:
+    image: docker.io/sosedoff/pgweb:latest
+    environment:
+      DATABASE_URL: postgres://postgres:@postgres:5432/diary?sslmode=disable
+    #FIXME az to pujde, vyresit lepe
+    command: sh -c "sleep 5; /usr/bin/pgweb --bind=0.0.0.0 --listen=8081"
+    ports:
+      - 8081:8081
+    depends_on:
+      - postgres
+
+  postgres:
+    image: docker.io/postgres:9.6-alpine
+    volumes:
+      - ./postgres-db/:/var/lib/postgresql/data/
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_DB: diary
+      PGDATA: /var/lib/postgresql/data
+
+#  roach1:
+#    image: docker.io/cockroachdb/cockroach-unstable:latest
+#    command: start --insecure
+#    ports:
+#      - 8080:8080
+#      - 26257:26257
+#
+#  roach2:
+#    image: docker.io/cockroachdb/cockroach-unstable:latest
+#    command: start --insecure --join roach1
+#
+#  roach3:
+#    image: docker.io/cockroachdb/cockroach-unstable:latest
+#    command: start --insecure --join roach1
