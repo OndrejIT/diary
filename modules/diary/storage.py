@@ -191,7 +191,7 @@ class Collection(BaseCollection):
 
     def list(self):
         print("\033[91m", "list")
-        if self.deep_path == 1:
+        if self.deep_path <= 1:
             return
 
         try:
