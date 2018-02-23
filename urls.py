@@ -14,5 +14,5 @@ urlpatterns = [
     url(r"^", include("modules.diary.urls")),
 ]
 
-admin.site.site_header = "Kalnedář & kontakty"
-admin.site.site_title = "Kalnedář & kontakty"
+admin.site.site_header = "Calendar & Contacts"
+admin.site.site_title = "Calendar & Contacts"
