@@ -86,7 +86,7 @@ class Collection(BaseCollection):
                 collection = user.collections.get(name=attributes[1])
             except DBCollection.DoesNotExist:
                 return
-            if DBItem.objects.filter(name=attributes[2], collection=collection).exists():
+            if DBItem.objects.filter(name=attributes[-1], collection=collection).exists():
                 href = attributes.pop()
             else:
                 return
@@ -133,42 +133,46 @@ class Collection(BaseCollection):
 
         return cls(sane_path)
 
-    def get_meta(self, key=None):
-        print("\033[91m", "get_meta")
-        if not key:
-            return self._meta_cache
-
-        if self.deep_path >= 2:
-            try:
-                collection = DBCollection.objects.get(name=self.attributes[1])
-
-                self._meta_cache = collection.tags
-                self._last_modified = collection.updated
-            except DBCollection.DoesNotExist:
-                self._last_modified = None
-            try:
-                check_and_sanitize_props(self._meta_cache)
-            except ValueError as e:
-                raise RuntimeError("Failed to load properties of collection ""%r: %s" % (self.path, e)) from e
-        else:
-            self._meta_cache = {}
-
-        return self._meta_cache.get(key)
-
     def get(self, href, verify_href=True):
         print("\033[91m", "get")
         item, metadata = self._get_with_metadata(href, verify_href=verify_href)
 
         return item
 
+    def get_meta(self, key=None):
+        print("\033[91m", "get_meta")
+        if not key:
+            return self._meta_cache
+
+        if self.deep_path >= 2:
+            if not self._meta_cache:
+                try:
+                    collection = DBCollection.objects.get(name=self.attributes[1])
+
+                    self._meta_cache = collection.tags
+                    self._last_modified = collection.updated
+                except DBCollection.DoesNotExist:
+                    self._last_modified = None
+                try:
+                    check_and_sanitize_props(self._meta_cache)
+                except ValueError as e:
+                    raise RuntimeError("Failed to load properties of collection ""%r: %s" % (self.path, e)) from e
+        else:
+            self._meta_cache = {}
+
+        return self._meta_cache.get(key)
+
     def _get_with_metadata(self, href, verify_href=True):
         print("\033[91m", "_get_with_metadata")
-        try:
-            client = User.objects.get(username=self.attributes[0])
-        except User.DoesNotExist:
-            return None, None
+#        try:
+#            user = User.objects.get(username=self.attributes[0])
+#        except User.DoesNotExist:
+#            return None, None
 
-        item = DBItem.objects.get(name=href, collection__name=self.attributes[1])
+        try:
+            item = DBItem.objects.get(name=href, collection__name=self.attributes[1])
+        except DBItem.DoesNotExist:
+            return None, None
 
         vobject_item = vobject.readOne(item.vobject)
         object_item = Item(self, href=href, last_modified=item.updated, item=vobject_item)
@@ -207,10 +211,18 @@ class Collection(BaseCollection):
         except DBCollection:
             return
 
+#        try:
+#            item = DBItem.objects.get(name=href, collection=collection)
+#        except DBItem.DoesNotExist:
+#            item = DBItem.objects.create(name=href, collection=collection)
+
         try:
-            item = DBItem.objects.get(name=href, collection=collection)
+            item = DBItem.objects.get(name=href)
         except DBItem.DoesNotExist:
             item = DBItem.objects.create(name=href, collection=collection)
+
+        # FIXME proverit ze je to takhle OK a nedostane se k tomu nepovolanej
+#        item = DBItem.objects.get_or_create(name=href)
 
         item.collection = collection
         item.vobject = vobject_item.serialize()
@@ -345,7 +357,7 @@ class Collection(BaseCollection):
 
         try:
             collection = DBCollection.objects.get(name=self.attributes[1])
-            collection.tags + collection.tags.update(delta_props)
+            collection.tags.update(delta_props)
             collection.save()
         except DBCollection.DoesNotExist:
             return
