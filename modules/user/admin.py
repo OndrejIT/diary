@@ -13,7 +13,7 @@ from .models import User
 
 
 class UserAdmin(OriginalUserAdmin, PermissionVersionAdmin):
-    filter_horizontal = ("collections",)
+    filter_horizontal = ("collections",) + OriginalUserAdmin.filter_horizontal
     list_display = ("username", "collections_count_order", "email", "first_name", "last_name", "is_staff")
     fieldsets = OriginalUserAdmin.fieldsets + (
         ("Diary", {
