@@ -1,8 +1,9 @@
 psycopg2==2.7.4
-Django==2.0.2
-radicale==2.1.8
-pytest==3.4.1
-uwsgi==2.0.16
+Django==2.0.6
+django-reversion==2.0.13
+radicale==2.1.9
+pytest==3.6.1
+uwsgi==2.0.17
 PyYAML==3.12
 easydict==1.7
-raven==6.5.0
+raven==6.9.0

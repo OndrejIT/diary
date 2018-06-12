@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.postgres",
     "raven.contrib.django.raven_compat",
+    "reversion",
     "modules.user",
     "modules.diary",
 ]

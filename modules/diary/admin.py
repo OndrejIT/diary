@@ -7,12 +7,14 @@ from django.db.models import Count
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 
+from lib.admin import PermissionVersionAdmin
+
 from .forms import CollectionForm, ItemForm
 from .models import Collection, Item, Token
 
 
 # FIXME dopsat vypis komu patri
-class CollectionAdmin(admin.ModelAdmin):
+class CollectionAdmin(PermissionVersionAdmin):
     form = CollectionForm
     list_display = ("name", "items_count_order", "token", "updated")
     fields = ("name", "token", "tags", "updated")
@@ -38,7 +40,7 @@ class CollectionAdmin(admin.ModelAdmin):
     items_count_order.admin_order_field = "items__count"
 
 
-class ItemAdmin(admin.ModelAdmin):
+class ItemAdmin(PermissionVersionAdmin):
     form = ItemForm
     list_display = ("name", "collection", "etag", "history_etag", "updated")
     fields = ("name", "vobject", "collection", "etag", "history_etag", "updated")
