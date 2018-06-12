@@ -46,14 +46,27 @@ class Collection(BaseCollection):
 
     @property
     def etag(self):
-        # TODO kesovat _etag_cache
+        # FIXME zlepsit
         """Encoded as quoted-string (see RFC 2616)."""
         print("\033[91m", "etag")
+        try:
+            collection = DBCollection.objects.get(name=self.attributes[1])
+            if collection.token:
+                return '"{}"'.format(collection.token)
+        except DBCollection.DoesNotExist:
+            collection = None
+
         etag = md5()
         for item in self.get_all():
             etag.update((item.name + "/" + item.etag).encode("utf-8"))
         etag.update(json.dumps(self.get_meta(), sort_keys=True).encode())
-        return '"%s"' % etag.hexdigest()
+        token = etag.hexdigest()
+
+        if collection:
+            collection.token = token
+            collection.save()
+
+        return token
 
     @property
     def last_modified(self):
@@ -304,8 +317,9 @@ class Collection(BaseCollection):
         token_name = token_name_hash.hexdigest()
         token = "http://radicale.org/ns/sync/%s" % token_name
 
-        collection.token = token_name
-        collection.save()
+        if not collection.token == token_name:
+            collection.token = token_name
+            collection.save()
 
         if token_name == old_token_name:
             # Nothing changed
@@ -336,9 +350,9 @@ class Collection(BaseCollection):
     def _update_history_etag(self, href, item):
         print("\033[91m", "_update_history_etag")
         try:
-            item = DBItem.objects.get(name=href)
+            item = DBItem.objects.get(name=href, collection__name=self.attributes[1])
         except DBItem.DoesNotExist:
-            item = DBItem.objects.create(name=href)
+            return
 
         if not item.history_etag:
             history_etag = binascii.hexlify(os.urandom(16)).decode("ascii")
