@@ -69,7 +69,7 @@ class Token(models.Model):
     """
 
     name = models.CharField("Jméno", max_length=254)
-    collection = models.ForeignKey(Collection, related_name="tokens", verbose_name="Token", on_delete=models.CASCADE)
+    collection = models.ForeignKey(Collection, related_name="tokens", verbose_name="Kolekce", on_delete=models.CASCADE)
     item = models.CharField("Záznam", max_length=254)
     etag = models.CharField("Etag", max_length=32)
     created = models.DateTimeField("Vytvořeno", auto_now=True)

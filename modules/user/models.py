@@ -15,4 +15,4 @@ class User(AbstractUser):
         super(User, self).__init__(*args, **kwargs)
         self._username = self.username if self.pk else None
 
-    collections = models.ManyToManyField(Collection, verbose_name="Kolekce", blank=True)
+    collections = models.ManyToManyField(Collection, related_name="users", verbose_name="Kolekce", blank=True)
