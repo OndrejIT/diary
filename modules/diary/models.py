@@ -14,6 +14,10 @@ class Collection(models.Model):
     Model pro kalendar a kontakty
     """
 
+    @property
+    def get_users(self):
+        return self.users.all()
+
     name = models.CharField("Jméno", max_length=254)
     token = models.CharField("Token", max_length=32, blank=True)
     tags = JSONField("Tagy")

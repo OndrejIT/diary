@@ -15,7 +15,7 @@ from .models import Collection, Item, Token
 
 class CollectionAdmin(PermissionVersionAdmin):
     form = CollectionForm
-    list_display = ("name", "items_count_order", "token", "updated")
+    list_display = ("name", "users_count_order", "items_count_order", "token", "updated")
     fields = ("name", "token", "tags", "updated")
     list_filter = ("users",)
     readonly_fields = ("updated",)
@@ -23,7 +23,8 @@ class CollectionAdmin(PermissionVersionAdmin):
 
     def get_queryset(self, request):
         qs = super(CollectionAdmin, self).get_queryset(request)
-        qs = qs.annotate(Count("items"))
+        qs = qs.annotate(Count("items"), Count("users"))
+
         return qs
 
     @mark_safe
@@ -38,6 +39,12 @@ class CollectionAdmin(PermissionVersionAdmin):
 
     items_count_order.short_description = "Záznamy"
     items_count_order.admin_order_field = "items__count"
+
+    def users_count_order(self, obj):
+        return obj.users.all().count()
+
+    users_count_order.short_description = "Vlastníci"
+    users_count_order.admin_order_field = "users__count"
 
 
 class ItemAdmin(PermissionVersionAdmin):
