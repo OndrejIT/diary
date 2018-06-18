@@ -23,7 +23,7 @@ class UserAdmin(OriginalUserAdmin, PermissionVersionAdmin):
 
     def get_queryset(self, request):
         qs = super(UserAdmin, self).get_queryset(request)
-        qs = qs.annotate(Count("collections"))
+        qs = qs.annotate(Count("collections", distinct=True))
         return qs
 
     @mark_safe

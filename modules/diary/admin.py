@@ -23,7 +23,7 @@ class CollectionAdmin(PermissionVersionAdmin):
 
     def get_queryset(self, request):
         qs = super(CollectionAdmin, self).get_queryset(request)
-        qs = qs.annotate(Count("items"), Count("users"))
+        qs = qs.annotate(Count("items", distinct=True), Count("users", distinct=True))
 
         return qs
 
@@ -41,7 +41,7 @@ class CollectionAdmin(PermissionVersionAdmin):
     items_count_order.admin_order_field = "items__count"
 
     def users_count_order(self, obj):
-        return obj.users.all().count()
+        return obj.users__count
 
     users_count_order.short_description = "Vlastníci"
     users_count_order.admin_order_field = "users__count"
