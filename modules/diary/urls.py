@@ -3,7 +3,7 @@
 # Copyright 2016
 
 
-from django.conf.urls import url
+from django.urls import re_path
 
 from .views import RadicaleView
 
@@ -11,5 +11,5 @@ app_name = "diary"
 
 
 urlpatterns = [
-    url(r"^(?P<url>.*)$", RadicaleView.as_view(), name="application"),
+    re_path(r"^(?P<url>.*)$", RadicaleView.as_view(), name="application"),
 ]
