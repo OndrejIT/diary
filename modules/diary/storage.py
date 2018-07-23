@@ -41,14 +41,14 @@ class Collection(BaseCollection):
     @classmethod
     @contextmanager
     def acquire_lock(cls, mode, user=None):
-        print("\033[91m", "acquire_lock")
+        logger.debug("acquire_lock")
         yield transaction.atomic()
 
     @property
     def etag(self):
         # FIXME zlepsit
         """Encoded as quoted-string (see RFC 2616)."""
-        print("\033[91m", "etag")
+        logger.debug("etag")
         try:
             collection = DBCollection.objects.get(name=self.attributes[1])
             if collection.token:
@@ -70,14 +70,14 @@ class Collection(BaseCollection):
 
     @property
     def last_modified(self):
-        print("\033[91m", "last_modified")
+        logger.debug("last_modified")
         # FIXME dodelat vraceni z kolekce pokud neni nastaveno
         return self._last_modified
 
     @classmethod
     def discover(cls, path, depth="0", child_context_manager=(
                  lambda path, href=None: contextlib.ExitStack())):
-        print("\033[91m", "discover")
+        logger.debug("discover")
         sane_path = sanitize_path(path).strip("/")
         attributes = sane_path.split("/") if sane_path else []
         deep_path = len(attributes)
@@ -128,7 +128,7 @@ class Collection(BaseCollection):
 
     @classmethod
     def create_collection(cls, href, collection=None, props=None):
-        print("\033[91m", "create_collection")
+        logger.debug("create_collection")
         sane_path = sanitize_path(href).strip("/")
         if props:
             username, name = sane_path.split("/")
@@ -147,13 +147,13 @@ class Collection(BaseCollection):
         return cls(sane_path)
 
     def get(self, href, verify_href=True):
-        print("\033[91m", "get")
+        logger.debug("get")
         item, metadata = self._get_with_metadata(href, verify_href=verify_href)
 
         return item
 
     def get_meta(self, key=None):
-        print("\033[91m", "get_meta")
+        logger.debug("get_meta")
         if not key:
             return self._meta_cache
 
@@ -176,7 +176,7 @@ class Collection(BaseCollection):
         return self._meta_cache.get(key)
 
     def _get_with_metadata(self, href, verify_href=True):
-        print("\033[91m", "_get_with_metadata")
+        logger.debug("_get_with_metadata")
 #        try:
 #            user = User.objects.get(username=self.attributes[0])
 #        except User.DoesNotExist:
@@ -194,16 +194,16 @@ class Collection(BaseCollection):
         return object_item, (tag, start, end)
 
     def get_all(self):
-        print("\033[91m", "get_all")
+        logger.debug("get_all")
         return (self.get(href) for href in self.list())
 
     def get_multi2(self, hrefs):
-        print("\033[91m", "get_multi2")
+        logger.debug("get_multi2")
         for href in hrefs:
             yield href, self.get(href)
 
     def list(self):
-        print("\033[91m", "list")
+        logger.debug("list")
         if self.deep_path <= 1:
             return
 
@@ -216,7 +216,7 @@ class Collection(BaseCollection):
             yield i.name
 
     def upload(self, href, vobject_item):
-        print("\033[91m", "upload")
+        logger.debug("upload")
         object_item = Item(self, href=href, item=vobject_item)
 
         try:
@@ -250,7 +250,7 @@ class Collection(BaseCollection):
         return object_item
 
     def delete(self, href=None):
-        print("\033[91m", "delete")
+        logger.debug("delete")
 
         try:
             collection = DBCollection.objects.get(name=self.attributes[1])
@@ -269,7 +269,7 @@ class Collection(BaseCollection):
             collection.delete()
 
     def sync(self, old_token=None):
-        print("\033[91m", "sync")
+        logger.debug("sync")
         # The sync token has the form http://radicale.org/ns/sync/TOKEN_NAME
         # where TOKEN_NAME is the md5 hash of all history etags of present and
         # past items of the collection.
@@ -348,7 +348,7 @@ class Collection(BaseCollection):
         return token, changes
 
     def _update_history_etag(self, href, item):
-        print("\033[91m", "_update_history_etag")
+        logger.debug("_update_history_etag")
         try:
             item = DBItem.objects.get(name=href, collection__name=self.attributes[1])
         except DBItem.DoesNotExist:
@@ -362,16 +362,17 @@ class Collection(BaseCollection):
         return item.history_etag
 
     def set_meta_all(self, props):
-        print("\033[91m", "set_meta_all")
+        logger.debug("set_meta_all")
         delta_props = self.get_meta()
         for key in delta_props.keys():
             if key not in props:
                 delta_props[key] = None
         delta_props.update(props)
 
-        try:
-            collection = DBCollection.objects.get(name=self.attributes[1])
-            collection.tags.update(delta_props)
-            collection.save()
-        except DBCollection.DoesNotExist:
-            return
+        if len(self.attributes) >= 2:
+            try:
+                collection = DBCollection.objects.get(name=self.attributes[1])
+                collection.tags.update(delta_props)
+                collection.save()
+            except DBCollection.DoesNotExist:
+                return
