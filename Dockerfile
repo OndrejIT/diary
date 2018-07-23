@@ -1,4 +1,4 @@
-FROM docker.io/python:3-alpine
+FROM docker.io/python:3.6-alpine
 
 COPY . /opt/diary
 
