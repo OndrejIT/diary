@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.postgres",
     "raven.contrib.django.raven_compat",
+    "axes",
     "reversion",
     "modules.user",
     "modules.diary",
@@ -189,6 +190,9 @@ RADICALE_CONFIG = {
     "auth": {
         "type": "modules.diary.auth",
     },
+    "web": {
+        "type": "radicale_infcloud",
+    },
     # FIXME pak udelat jinak
 #    "rights": {
 #        "type":  "modules.diary.rights",
@@ -200,6 +204,15 @@ RADICALE_CONFIG = {
 #    "storage": {
 #         "filesystem_folder": "/srv"
 #    },
+}
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+    },
+    "axes_cache": {
+        "BACKEND": "django.core.cache.backends.dummy.DummyCache",
+    }
 }
 
 RADICALE_RIGHTS = {
@@ -214,6 +227,12 @@ RADICALE_RIGHTS = {
         "permission": "rw",
     },
 }
+
+AXES_CACHE = "axes_cache"
+AXES_META_PRECEDENCE_ORDER = ["HTTP_X_FORWARDED_FOR", "HTTP_X_REAL_IP"]
+AXES_LOCKOUT_TEMPLATE = "/account/lockout.jinja"
+AXES_FAILURE_LIMIT = CONFIG.axes.failure_limit
+AXES_COOLOFF_TIME = CONFIG.axes.cooloff_time
 
 STATIC_URL = CONFIG.static_url
 STATIC_ROOT = os.path.join(BASE_DIR, "resources/static")
