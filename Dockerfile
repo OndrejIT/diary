@@ -1,4 +1,4 @@
-FROM docker.io/python:3.6-alpine
+FROM docker.io/python:3.7-alpine
 
 COPY . /opt/diary
 
@@ -40,7 +40,7 @@ RUN apk del build-deps && rm -rf /var/cache/apk/*
 RUN chmod -R 777 /srv
 
 # Copy build to blank image
-FROM docker.io/python:3-alpine
+FROM docker.io/python:3.7-alpine
 COPY --from=0 / /
 
 WORKDIR /opt/diary

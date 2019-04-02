@@ -10,7 +10,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Load config file
 CONFIGFILE = os.environ.get("CONFIGFILE")
-CONFIG = EasyDict(yaml.load(open(CONFIGFILE, "r")))
+CONFIG = EasyDict(yaml.load(open(CONFIGFILE, "r"), Loader=yaml.FullLoader))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/

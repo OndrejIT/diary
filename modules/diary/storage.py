@@ -1,6 +1,6 @@
 # Author Ondrej Barta
 # ondrej@ondrej.it
-# Copyright 2018
+# Copyright 2018-2019
 
 
 import binascii
@@ -37,6 +37,10 @@ class Collection(BaseCollection):
         self._last_modified = None
         self.attributes = self.path.split("/") if self.path else []
         self.deep_path = len(self.attributes)
+
+    @classmethod
+    def static_init(cls):
+        pass
 
     @classmethod
     @contextmanager

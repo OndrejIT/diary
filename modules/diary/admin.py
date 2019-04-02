@@ -19,7 +19,6 @@ class CollectionAdmin(PermissionVersionAdmin):
     fields = ("name", "token", "tags", "updated")
     list_filter = ("users",)
     readonly_fields = ("updated",)
-    actions = ["delete_selected"]
 
     def get_queryset(self, request):
         qs = super(CollectionAdmin, self).get_queryset(request)
@@ -53,7 +52,6 @@ class ItemAdmin(PermissionVersionAdmin):
     fields = ("name", "vobject", "collection", "etag", "history_etag", "updated")
     list_filter = ("collection__users", "collection")
     readonly_fields = ("updated",)
-    actions = ["delete_selected"]
 
     @mark_safe
     def href_collection(self, obj):
@@ -73,7 +71,6 @@ class TokenAdmin(admin.ModelAdmin):
     fields = ("name", "item", "etag", "collection", "created")
     list_filter = ("collection",)
     readonly_fields = ("created",)
-    actions = ["delete_selected"]
 
     @mark_safe
     def href_collection(self, obj):
