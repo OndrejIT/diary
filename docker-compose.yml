@@ -31,7 +31,7 @@ services:
   pgweb:
     image: docker.io/sosedoff/pgweb:latest
     environment:
-      DATABASE_URL: postgres://postgres:@postgres:5432/diary?sslmode=disable
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/diary?sslmode=disable
     #FIXME az to pujde, vyresit lepe
     command: sh -c "sleep 5; /usr/bin/pgweb --bind=0.0.0.0 --listen=8081"
     ports:
@@ -40,11 +40,12 @@ services:
       - postgres
 
   postgres:
-    image: docker.io/postgres:10.2-alpine
+    image: docker.io/postgres:11.3-alpine
     volumes:
       - ./postgres-db/:/var/lib/postgresql/data/
     environment:
-      POSTGRES_USER: root
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
       POSTGRES_DB: diary
       PGDATA: /var/lib/postgresql/data
 
