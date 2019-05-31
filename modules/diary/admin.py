@@ -51,16 +51,19 @@ class ItemAdmin(PermissionVersionAdmin):
     list_display = ("name", "href_collection", "etag", "history_etag", "updated")
     fields = ("name", "vobject", "collection", "etag", "history_etag", "updated")
     list_filter = ("collection__users", "collection")
+    filter_horizontal = ("collection",)
     readonly_fields = ("updated",)
 
     @mark_safe
     def href_collection(self, obj):
-        href = "<a href={0}>{1}</a>".format(
-            reverse("admin:diary_collection_change", args=(obj.collection.id,)),
-            obj.collection,
-        )
+        hrefs = ""
+        for i in obj.collection.all():
+            hrefs += "<a href={0}>{1}</a>".format(
+                reverse("admin:diary_collection_change", args=(i.id,)),
+                "{0}, ".format(i),
+            )
 
-        return href
+        return hrefs
 
     href_collection.short_description = "Kolekce"
     href_collection.admin_order_field = "collection"

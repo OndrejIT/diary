@@ -51,7 +51,7 @@ class Item(models.Model):
     """
 
     name = models.CharField("Jméno", max_length=254, unique=True)
-    collection = models.ForeignKey(Collection, related_name="items", verbose_name="Kolekce", on_delete=models.CASCADE)
+    collection = models.ManyToManyField(Collection, related_name="items", verbose_name="Kolekce")
     vobject = models.TextField("Vobject")
     etag = models.CharField("Etag", max_length=32)
     history_etag = models.CharField("History Etag", max_length=32, blank=True)

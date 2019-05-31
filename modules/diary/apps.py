@@ -8,3 +8,6 @@ from django.apps import AppConfig
 class DiaryConfig(AppConfig):
     name = "modules.diary"
     verbose_name = "Diary"
+
+    def ready(self):
+        import modules.diary.signals
