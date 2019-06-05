@@ -103,7 +103,7 @@ class Collection(BaseCollection):
                 collection = user.collections.get(name=attributes[1])
             except DBCollection.DoesNotExist:
                 return
-            if DBItem.objects.filter(name=attributes[-1], collection=collection).exists():
+            if collection.items.filter(name=attributes[-1]).exists():
                 href = attributes.pop()
             else:
                 return
@@ -143,10 +143,12 @@ class Collection(BaseCollection):
             except User.DoesNotExist:
                 return
 
-            user.collections.create(
+            collection = DBCollection.objects.create(
                 name=name,
                 tags=tags,
             )
+
+            collection.users.add(user)
 
         return cls(sane_path)
 
@@ -181,13 +183,14 @@ class Collection(BaseCollection):
 
     def _get_with_metadata(self, href, verify_href=True):
         logger.debug("_get_with_metadata")
-#        try:
-#            user = User.objects.get(username=self.attributes[0])
-#        except User.DoesNotExist:
-#            return None, None
 
         try:
-            item = DBItem.objects.get(name=href, collection__name=self.attributes[1])
+            collection = DBCollection.objects.get(name=self.attributes[1])
+        except DBCollection.DoesNotExist:
+            return None, None
+
+        try:
+            item = collection.items.get(name=href)
         except DBItem.DoesNotExist:
             return None, None
 
@@ -225,31 +228,34 @@ class Collection(BaseCollection):
 
         try:
             collection = DBCollection.objects.get(name=self.attributes[1])
-        except DBCollection:
+        except DBCollection.DoesNotExist:
             return
-
-#        try:
-#            item = DBItem.objects.get(name=href, collection=collection)
-#        except DBItem.DoesNotExist:
-#            item = DBItem.objects.create(name=href, collection=collection)
 
         try:
             item = DBItem.objects.get(name=href)
         except DBItem.DoesNotExist:
-            item = DBItem.objects.create(name=href, collection=collection)
+            item = DBItem.objects.create(
+                name=href,
+                vobject=vobject_item.serialize(),
+                etag=object_item.etag.strip("\""),
+            )
+            collection.items.add(item)
 
-        # FIXME proverit ze je to takhle OK a nedostane se k tomu nepovolanej
-#        item = DBItem.objects.get_or_create(name=href)
+        else:
+            # Overime opravneni
+            if not collection.items.filter(name=item.name).exists():
+                return
 
-        item.collection = collection
-        item.vobject = vobject_item.serialize()
-        item.etag = object_item.etag.strip("\"")
-        item.history_etag = ""
+            item.vobject = vobject_item.serialize()
+            item.etag = object_item.etag.strip("\"")
+            item.history_etag = ""
 
-        item.save()
+            item.save()
 
-        collection.token = ""
-        collection.save()
+        # FIXME misto resetu token rovnou pocitat?
+        for i in item.collections.all():
+            i.token = ""
+            i.save()
 
         return object_item
 
@@ -263,12 +269,17 @@ class Collection(BaseCollection):
 
         if href is not None:
             try:
-                DBItem.objects.get(name=href, collection=collection).delete()
+                item = collection.items.get(name=href)
             except DBItem.DoesNotExist:
                 pass
+            else:
+                # FIXME misto resetu token rovnou pocitat?
+                for i in item.collections.all():
+                    i.token = ""
+                    i.save()
 
-            collection.token = ""
-            collection.save()
+                item.delete()
+
         else:
             collection.delete()
 
@@ -295,9 +306,7 @@ class Collection(BaseCollection):
                 raise ValueError("Malformed token: %r" % old_token)
         # Get the current state and sync-token of the collection.
 
-        try:
-            user = User.objects.get(username=self.attributes[0])
-        except User.DoesNotExist:
+        if not User.objects.filter(username=self.attributes[0]).exists():
             return
 
         try:
@@ -354,7 +363,7 @@ class Collection(BaseCollection):
     def _update_history_etag(self, href, item):
         logger.debug("_update_history_etag")
         try:
-            item = DBItem.objects.get(name=href, collection__name=self.attributes[1])
+            item = DBItem.objects.get(name=href)
         except DBItem.DoesNotExist:
             return
 

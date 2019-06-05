@@ -26,6 +26,7 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
+    "django_extensions",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -34,9 +35,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.postgres",
     "raven.contrib.django.raven_compat",
-    "axes",
+#    "axes",
     "reversion",
-    "modules.user",
     "modules.diary",
 ]
 
@@ -48,6 +48,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+#    "axes.middleware.AxesMiddleware",
 ]
 
 ROOT_URLCONF = "urls"
@@ -87,8 +88,6 @@ DATABASES = {
     }
 }
 
-AUTH_USER_MODEL = "user.User"
-
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
 
@@ -105,6 +104,11 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
+]
+
+AUTHENTICATION_BACKENDS = [
+#    "axes.backends.AxesBackend",
+    "django.contrib.auth.backends.ModelBackend",
 ]
 
 # Logging
@@ -228,6 +232,8 @@ RADICALE_RIGHTS = {
     },
 }
 
+SHELL_PLUS = "ipython"
+
 AXES_CACHE = "axes_cache"
 AXES_META_PRECEDENCE_ORDER = ["HTTP_X_FORWARDED_FOR", "HTTP_X_REAL_IP"]
 AXES_LOCKOUT_TEMPLATE = "/account/lockout.jinja"
@@ -248,4 +254,4 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False

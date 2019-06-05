@@ -8,21 +8,20 @@ from django.dispatch import receiver
 from .models import Item, Collection
 
 
-@receiver(post_save, sender=Item)
+@receiver(post_save, sender=Collection)
 def transaction_commit(sender, instance, **kwargs):
-    instance._collections_id = [i.id for i in instance.collection.all()]
+    instance._items_id = [i.id for i in instance.items.all()]
     transaction.on_commit(
         lambda: on_transaction_commit(instance)
     )
 
 
 def on_transaction_commit(instance):
-    instance.collections_id = [i.id for i in instance.collection.all()]
-    changes = [i for i in instance.collections_id if i not in instance._collections_id] + [i for i in instance._collections_id if i not in instance.collections_id]
-    for i in changes:
-        try:
-            collection = Collection.objects.get(id=i)
-            collection.token = ""
-            collection.save()
-        except Collection.DoesNotExist:
-            pass
+    instance.items_id = [i.id for i in instance.items.all()]
+    changes = [i for i in instance.items_id if i not in instance._items_id] + [i for i in instance._items_id if i not in instance.items_id]
+
+    # Pokud se zmeni pocet itemu, resetujeme token.
+    # FIXME misto resetu token rovnou pocitat?
+    if changes:
+        instance.token = ""
+        instance.save()
