@@ -18,7 +18,7 @@ class CollectionAdmin(PermissionVersionAdmin):
     date_hierarchy = "created"
     list_display = ("name", "users_count_order", "items_count_order", "token", "updated", "created")
     fields = ("name", "token", "tags", "users", "items", "updated", "created")
-    list_filter = ("users", "updated", "created")
+    list_filter = ("users", "updated", "created", "users")
     filter_horizontal = ("users", "items")
     readonly_fields = ("updated", "created")
 
@@ -30,7 +30,7 @@ class CollectionAdmin(PermissionVersionAdmin):
 
     @mark_safe
     def items_count_order(self, obj):
-        href = "<a href={0}?collection__id__exact={1}>{2}</a>".format(
+        href = "<a href={0}?collections__id__exact={1}>{2}</a>".format(
             reverse("admin:diary_item_changelist"),
             obj.id,
             obj.items__count
@@ -43,7 +43,7 @@ class CollectionAdmin(PermissionVersionAdmin):
 
     @mark_safe
     def users_count_order(self, obj):
-        href = "<a href={0}?collection__id__exact={1}>{2}</a>".format(
+        href = "<a href={0}?collections__id__exact={1}>{2}</a>".format(
             reverse("admin:auth_user_changelist"),
             obj.id,
             obj.users__count
@@ -59,7 +59,7 @@ class ItemAdmin(PermissionVersionAdmin):
     date_hierarchy = "created"
     list_display = ("name", "etag", "history_etag", "updated", "created")
     fields = ("name", "vobject", "etag", "history_etag", "updated", "created")
-    list_filter = ("updated", "created")
+    list_filter = ("updated", "created", "collections")
     readonly_fields = ("updated", "created")
 
     @mark_safe
