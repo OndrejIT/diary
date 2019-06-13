@@ -37,14 +37,8 @@ RUN pip install -r /opt/diary/requirements.txt --no-cache-dir
 # Cleaning up
 RUN apk del build-deps && rm -rf /var/cache/apk/*
 
-RUN chmod -R 777 /srv
-
-# Copy build to blank image
-FROM docker.io/python:3.7-alpine
-COPY --from=0 / /
-
 WORKDIR /opt/diary
 
 EXPOSE 8080 8080
 
-ENTRYPOINT ["gosu", "root", "uwsgi", "--ini"]
+ENTRYPOINT ["gosu", "nobody", "uwsgi", "--ini"]
