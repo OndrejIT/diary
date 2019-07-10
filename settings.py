@@ -197,17 +197,9 @@ RADICALE_CONFIG = {
     "web": {
         "type": "radicale_infcloud",
     },
-    # FIXME pak udelat jinak
-#    "rights": {
-#        "type":  "modules.diary.rights",
-#    },
     "storage": {
         "type": "modules.diary.storage",
-        "filesystem_folder": "/srv",
     }
-#    "storage": {
-#         "filesystem_folder": "/srv"
-#    },
 }
 
 CACHES = {
@@ -217,19 +209,6 @@ CACHES = {
     "axes_cache": {
         "BACKEND": "django.core.cache.backends.dummy.DummyCache",
     }
-}
-
-RADICALE_RIGHTS = {
-    "rw": {
-        "user": ".+",
-        "collection": "^%(login)s/[a-z0-9\.\-_]+\.(vcf|ics)$",
-        "permission": "rw",
-    },
-    "rw-root": {
-        "user": ".+",
-        "collection": "^%(login)s$",
-        "permission": "rw",
-    },
 }
 
 SHELL_PLUS = "ipython"
