@@ -22,7 +22,7 @@ class ApplicationResponse(HttpResponse):
             self[k] = v
 
 
-class RadicaleView(Application, View):
+class DiaryView(Application, View):
     http_method_names = [
         "delete",
         "get",
@@ -42,7 +42,7 @@ class RadicaleView(Application, View):
         configuration = config.load(extra_config=settings.RADICALE_CONFIG)
         logger = logging.getLogger("diary")
 
-        super(RadicaleView, self).__init__(configuration, logger)
+        super(DiaryView, self).__init__(configuration, logger)
         super(View, self).__init__(**kwargs)
 
     def _read_raw_content(self, environ):
