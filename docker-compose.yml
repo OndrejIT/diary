@@ -2,7 +2,7 @@ version: "2"
 
 services:
   uwsgi:
-    image: registry.ntl.cloud/ondrej/diary:latest
+    image: docker.io/ondrejit/diary:latest
     build: .
     command: ./etc/uwsgi.dev.ini
     environment:
